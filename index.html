@@ -111,6 +111,11 @@
              class="{{cellClass(c)}}"
              style="{{cellStyle(c)}}"
              ng-click="select(c)">
+
+          <img ng-show="c.dynamite"
+               src="dynamite.png" width="30px" height="30px">
+          <img ng-show="c.mine"
+               src="mine.png" width="30px" height="30px">
         </div>
       </div>
 
@@ -127,12 +132,16 @@
            ng-click="move(d)"
            class="move" style="{{moveStyle(d)}}"></div>
 
+      <div ng-show="explosion" style="position: absolute; {{explosion.pos}}">
+        <img src="{{explosion.img}}" style="opacity: 0.75; {{explosion.size}}">
+      </div>
+
       <div style="position: absolute; left:500px;">
         <h1>Players</h1>
         <ul>
           <li ng-repeat="p in state.players">
             <a href="#"
-               ng-class="state.currentPlayer==$index ? 'selected':'notselected'">{{p.name}}</a>
+               ng-class="state.currentPlayer==$index ? 'selected':''">{{p.name}}</a>
           </li>
         </ul>
         <h1>Action</h1>
@@ -140,7 +149,7 @@
           <li ng-repeat="c in state.actions">
             <a href="#"
                ng-click="selCard(c, $index)"
-               ng-class="state.selectedCard==$index ? 'selected':'notselected'">{{c}}</a>
+               ng-class="state.selectedCard==$index ? 'selected':''">{{c}}</a>
           </li>
         </ul>
       </div>

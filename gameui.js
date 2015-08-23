@@ -2,6 +2,7 @@
 
 carnageApp.game = function($scope, $timeout) {
 
+    // Messages
     $scope.message = "";
     $scope.showMessage = false;
     var messageQueue = [];
@@ -31,6 +32,27 @@ carnageApp.game = function($scope, $timeout) {
         var a = 25  + x * 40;
         var b = 125 + y * 45 - 20*x;
         return "left: " + a + "px; top: " + b + "px;";
+    }
+
+    // Explosions
+    $scope.explosion = null;
+    var explode = function(c, big) {
+        if (big) {
+            $scope.explosion = {
+                pos: $scope.getPos(c.x-0.5, c.y-0.9),
+                size: "width: 100px; height: 100px",
+                img: "explosion.png"
+            };
+        } else {
+            $scope.explosion = {
+                pos: $scope.getPos(c.x+0.1, c.y+0.2),
+                size: "width: 30px; height: 30px",
+                img: "boom.png"
+            };
+        }
+        $timeout(function() {
+            $scope.explosion = null;
+        }, 500);
     }
 
     // css class for the cell
@@ -76,7 +98,7 @@ carnageApp.game = function($scope, $timeout) {
         var y = c.y + 0.3;
         var pos = $scope.getPos(x, y);
         if ($scope.state.hasPlayed) {
-            return pos + "; background-color: #080";
+            return pos + "; background-color: #48F";
         } else {
             return pos;
         }
@@ -116,6 +138,7 @@ carnageApp.game = function($scope, $timeout) {
             return;
         }
         // attack
+        explode(c, false);
         $scope.state = attack($scope.state, c);
         $scope.endTurn();
     };

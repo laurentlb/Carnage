@@ -145,9 +145,8 @@ li.ng-enter.ng-enter-active {
 .cell, .worm, .injuredWorm {
     position: absolute;
     text-align: center;
-    vertical-align: middle;
     padding: 0px;
-    border-radius: 100%;
+    border-radius: 45%;
     width: 44px;
     height: 44px;
     border: solid 2px #ccc;
@@ -192,10 +191,10 @@ li.ng-enter.ng-enter-active {
     position: absolute;
     width: 25px;
     height: 25px;
-    border-radius: 100%;
     opacity: 0.6;
     cursor: pointer;
-    transition: all ease-out 0.25s;
+    transition: all ease-in-out 0.25s;
+    border-radius: 50%;
 }
 
 .move {
@@ -208,45 +207,63 @@ li.ng-enter.ng-enter-active {
     border: solid 3px #000;
 }
 
-.move.ng-hide.ng-hide-add, .attack.ng-hide.ng-hide-add,
-.move.ng-hide.ng-hide-remove, .attack.ng-hide.ng-hide-remove {
+.move.ng-hide-remove,
+.attack.ng-hide-remove {
+    transition: all ease-out 0.05s;
     opacity: 0;
-    width: 15px;
-    height: 15px;
-    margin-top: 7px;
-    margin-left: 7px;
+}
+
+.move.ng-hide-remove.ng-hide-remove-active, .move.ng-hide-add,
+.attack.ng-hide-remove.ng-hide-remove-active, .attack.ng-hide-add {
+    transition: all ease-out 0.05s;
+    opacity: 0;
+    width: 0px;
+    height: 0px;
+    margin-top: 12px;
+    margin-left: 12px;
 }
 
 ul {
-  list-style-type: none;
-  margin: 0;
-  padding: 0;
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
 }
 
-li .notselected {
-  font: 200 20px/1.5 Helvetica, Verdana, sans-serif;
-  border-bottom: 1px solid #ccc;
+li {
+    font: 200 20px/1.5 Helvetica, Verdana, sans-serif;
+    border-bottom: 1px solid #ccc;
 }
 
 li:last-child {
-  border: none;
+    border: none;
 }
 
 li a {
-  text-decoration: none;
-  color: #000;
-  display: block;
-  width: 200px;
+    text-decoration: none;
+    color: #000;
+    display: block;
+    width: 200px;
 
-  transition: font-size 0.3s ease, background-color 0.3s ease;
+    transition: font-size 0.3s ease, background-color 0.3s ease;
 }
 
 li a:hover {
-  font-size: 30px;
-  background: #f6f6f6;
+    font-size: 30px;
+    background: #f6f6f6;
 }
 
 li .selected {
-  font-size: 30px;
-  background: #f6f6f6;
+    font-size: 30px;
+    background: #f6f6f6;
+}
+
+.explosion {
+    transition: all ease-out 0.5s;
+    opacity: 1;
+}
+
+.explosion.ng-hide-add,
+.explosion.ng-hide-remove {
+    opacity: 0;
+    padding-left: 10px;
 }
