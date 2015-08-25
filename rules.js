@@ -14,11 +14,13 @@ function newGame() {
     return makeDummyState();
 }
 
-function move(state, d) {
+function move(state, d) { // active worm is moved by player
     if (state.movesLeft > 0) {
 	state.movesLeft -= 1;
 	var w = state.selectedWorm;
-	moveWorm(state, w, addXY(state.worms[w], d));
+	var worm = state.worms[w];
+	state.trail.push({x:worm.x, y:worm.y});
+	moveWorm(state, w, addXY(worm, d));
 	return state;
     }
 }
@@ -89,6 +91,7 @@ function newTurn(state, c) {
     state.currentPlayer = (state.currentPlayer + 1) % state.players.length;
     state.hasPlayed = false;
     state.movesLeft = 3;
+    state.trail = [];
     return state;
 }
 
@@ -96,27 +99,31 @@ function canAttack(state, c) {
     if (state.selectedCard <= 0) {
         return false;
     }
-    if (c.worm < 0 || c.worm == state.selectedWorm) {
+    if (c.worm === state.selectedWorm) {
         return false;
     }
+
     var activeWorm = state.worms[state.selectedWorm];
-    var clickedWorm = state.worms[c.worm];
-    var direction = findDirection(activeWorm, clickedWorm);
-    var distance = distanceBetween(activeWorm, clickedWorm);
+    var clickedWorm = c.worm < 0 ? null : state.worms[c.worm];
+    var direction = findDirection(activeWorm, c.worm < 0 ? c : clickedWorm);
+    var distance = distanceBetween(activeWorm, c.worm < 0 ? c : clickedWorm);
     var nearestTarget = direction === null ? null : nearestWorm(state, activeWorm, direction);
-    if (state.actions[state.selectedCard] == "Shotgun") {
-	return direction !== null && nearestTarget === clickedWorm;
-    } else if (state.actions[state.selectedCard] == "Bow") {
-	return direction !== null && nearestTarget === clickedWorm;
-    } else if (state.actions[state.selectedCard] == "Baseball Bat") {
-	return direction !== null && distance === 1;
-    } else if (state.actions[state.selectedCard] == "Pistol") {
-    } else if (state.actions[state.selectedCard] == "Flame Thrower") {
-    } else if (state.actions[state.selectedCard] == "Kamikaze") {
-    } else if (state.actions[state.selectedCard] == "Hook") {
-    } else if (state.actions[state.selectedCard] == "") {
-    } else if (state.actions[state.selectedCard] == "") {
-    } else if (state.actions[state.selectedCard] == "") {
+
+    if (state.actions[state.selectedCard] === "Shotgun") {
+	return clickedWorm !== null && direction !== null && nearestTarget === clickedWorm;
+    } else if (state.actions[state.selectedCard] === "Bow") {
+	return clickedWorm !== null && direction !== null && nearestTarget === clickedWorm;
+    } else if (state.actions[state.selectedCard] === "Baseball Bat") {
+	return clickedWorm !== null && direction !== null && distance === 1;
+    } else if (state.actions[state.selectedCard] === "Pistol") {
+    } else if (state.actions[state.selectedCard] === "Flame Thrower") {
+    } else if (state.actions[state.selectedCard] === "Kamikaze") {
+    } else if (state.actions[state.selectedCard] === "Hook") {
+    } else if (state.actions[state.selectedCard] === "Mine") {
+	return containsXY(state.trail, c);
+    } else if (state.actions[state.selectedCard] === "Dynamite") {
+	return containsXY(state.trail, c);
+    } else if (state.actions[state.selectedCard] === "") {
     }
     // TODO
     return true;
@@ -124,35 +131,37 @@ function canAttack(state, c) {
 
 function attack(state, c) {
     var activeWorm = state.worms[state.selectedWorm];
-    var clickedWorm = state.worms[c.worm];
-    var direction = findDirection(activeWorm, clickedWorm);
-    var distance = distanceBetween(activeWorm, clickedWorm);
-    var nearestTarget = nearestWorm(state, activeWorm, direction);
-    if (state.actions[state.selectedCard] == "Shotgun") {
-	if (direction !== null && nearestTarget === clickedWorm) {
+    var clickedWorm = c.worm < 0 ? null : state.worms[c.worm];
+    var direction = findDirection(activeWorm, c.worm < 0 ? c : clickedWorm);
+    var distance = distanceBetween(activeWorm, c.worm < 0 ? c : clickedWorm);
+    var nearestTarget = direction === null ? null : nearestWorm(state, activeWorm, direction);
+    if (state.actions[state.selectedCard] === "Shotgun") {
+	if (clickedWorm !== null && direction !== null && nearestTarget === clickedWorm) {
 	    push(state, clickedWorm, direction);
 	    if (clickedWorm.life > 0) {
 		harm(state, clickedWorm);
 	    }
 	}
-    } else if (state.actions[state.selectedCard] == "Bow") {
-	if (direction !== null && nearestTarget === clickedWorm) {
+    } else if (state.actions[state.selectedCard] === "Bow") {
+	if (clickedWorm !== null && direction !== null && nearestTarget === clickedWorm) {
 	    push(state, clickedWorm, direction);
 	    push(state, clickedWorm, direction);
 	}
-    } else if (state.actions[state.selectedCard] == "Baseball Bat") {
-	if (direction !== null && distance === 1) {
+    } else if (state.actions[state.selectedCard] === "Baseball Bat") {
+	if (clickedWorm !== null && direction !== null && distance === 1) {
 	    push(state, clickedWorm, direction);
 	    push(state, clickedWorm, direction);
 	    push(state, clickedWorm, direction);
 	}
-    } else if (state.actions[state.selectedCard] == "Pistol") {
-    } else if (state.actions[state.selectedCard] == "Flame Thrower") {
-    } else if (state.actions[state.selectedCard] == "Kamikaze") {
-    } else if (state.actions[state.selectedCard] == "Hook") {
-    } else if (state.actions[state.selectedCard] == "") {
-    } else if (state.actions[state.selectedCard] == "") {
-    } else if (state.actions[state.selectedCard] == "") {
+    } else if (state.actions[state.selectedCard] === "Pistol") {
+    } else if (state.actions[state.selectedCard] === "Flame Thrower") {
+    } else if (state.actions[state.selectedCard] === "Kamikaze") {
+    } else if (state.actions[state.selectedCard] === "Hook") {
+    } else if (state.actions[state.selectedCard] === "Mine") {
+	board[c.x][c.y].mine = true;
+    } else if (state.actions[state.selectedCard] === "Dynamite") {
+	board[c.x][c.y].dynamite = true;
+    } else if (state.actions[state.selectedCard] === "") {
     } else {
 	// TODO
 	harm(state, state.worms[c.worm]);
@@ -240,6 +249,15 @@ function addXY(p1, p2) {
     return {x:p1.x+p2.x, y:p1.y+p2.y};
 }
 
+function containsXY(list, p) {
+    for (var i = 0; i < list.length; ++i) {
+	var item = list[i];
+	if (item.x === p.X && item.y === p.y) {
+	    return true;
+	}
+    }
+    return false;
+}
 
 // programmer sanity
 
