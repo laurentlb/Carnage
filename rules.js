@@ -16,12 +16,18 @@ function newGame() {
 
 function move(state, d) {
     var w = state.selectedWorm;
-    var x = state.worms[w].x;
-    var y = state.worms[w].y;
+    move_worm(state, w, addXY(state.worms[w], d));
+    return state;
+}
+
+function move_worm(state, wormId, p) {
+    checkargs(state, wormId, p);
+    var x = state.worms[wormId].x;
+    var y = state.worms[wormId].y;
     state.board[x][y].worm = -1;
-    state.board[x+d.x][y+d.y].worm = w;
-    state.worms[w].x += d.x;
-    state.worms[w].y += d.y;
+    state.board[p.x][p.y].worm = wormId;
+    state.worms[wormId].x = p.x;
+    state.worms[wormId].y = p.y;
     return state;
 }
 
@@ -160,20 +166,19 @@ function push(state, worm, direction) {
 	if (wormBehind !== null) {
 	    push(state, wormBehind, direction);
 	}
-	worm.x += direction.x;
-	worm.y += direction.y;
+	move_worm(state, wormId(state, worm), addXY(worm, direction));
     }
+}
+
+function wormId(state, worm) {
+    checkargs(state, worm);
+    return state.board[worm.x][worm.y].worm;
 }
 
 function findWormAt(state, p) {
     checkargs(state, p);
-    for (var i = 0; i < state.worms.length; i++) {
-        var w = state.worms[i];
-	if (w.x === p.x && w.y === p.y) {
-	    return w;
-	}
-    }
-    return null;
+    var wormId = state.board[p.x][p.y].worm;
+    return wormId < 0 ? null : state.worms[wormId];
 }
 
 function nearestWorm(state, from, direction) {
