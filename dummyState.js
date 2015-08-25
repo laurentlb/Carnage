@@ -47,6 +47,7 @@ function makeDummyState() {
         players: [newPlayer("Rubix"), newPlayer("LLB"), newPlayer("Sly")],
         board: newBoard(),
         selectedWorm: 4,
+	movesLeft: 3,
         selectedCard: 0,
         currentPlayer: 0,
         hasPlayed: false,

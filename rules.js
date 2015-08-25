@@ -15,12 +15,15 @@ function newGame() {
 }
 
 function move(state, d) {
-    var w = state.selectedWorm;
-    move_worm(state, w, addXY(state.worms[w], d));
-    return state;
+    if (state.movesLeft > 0) {
+	state.movesLeft -= 1;
+	var w = state.selectedWorm;
+	moveWorm(state, w, addXY(state.worms[w], d));
+	return state;
+    }
 }
 
-function move_worm(state, wormId, p) {
+function moveWorm(state, wormId, p) {
     checkargs(state, wormId, p);
     var x = state.worms[wormId].x;
     var y = state.worms[wormId].y;
@@ -43,6 +46,9 @@ function exists(state, x, y) {
 }
 
 function canMove(state, d) {
+    if (state.movesLeft <= 0) {
+	return false;
+    }
     var w = state.selectedWorm;
     var x = state.worms[w].x + d.x;
     var y = state.worms[w].y + d.y;
@@ -82,6 +88,7 @@ function newTurn(state, c) {
     state.selectedWorm = c.worm;
     state.currentPlayer = (state.currentPlayer + 1) % state.players.length;
     state.hasPlayed = false;
+    state.movesLeft = 3;
     return state;
 }
 
@@ -166,7 +173,7 @@ function push(state, worm, direction) {
 	if (wormBehind !== null) {
 	    push(state, wormBehind, direction);
 	}
-	move_worm(state, wormId(state, worm), addXY(worm, direction));
+	moveWorm(state, wormId(state, worm), addXY(worm, direction));
     }
 }
 
