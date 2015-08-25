@@ -85,6 +85,8 @@ function makeDummyState() {
     state.actions = [
         "Move",
         "Shotgun",
+	"Bow",
+	"Baseball Bat",
         "Sleep",
     ];
     return state;
