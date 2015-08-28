@@ -47,6 +47,8 @@ function makeDummyState() {
         players: [newPlayer("Rubix"), newPlayer("LLB"), newPlayer("Sly")],
         board: newBoard(),
         selectedWorm: 4,
+	movesLeft: 3,
+	trail: [],
         selectedCard: 0,
         currentPlayer: 0,
         hasPlayed: false,
@@ -87,6 +89,8 @@ function makeDummyState() {
         "Shotgun",
 	"Bow",
 	"Baseball Bat",
+	"Mine",
+	"Dynamite",
         "Sleep",
     ];
     return state;
