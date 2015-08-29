@@ -53,6 +53,9 @@ function canMove(state, d) {
         return false;
     }
     var w = state.selectedWorm;
+    if (w < 0) {
+        return false;
+    }
     var x = state.worms[w].x + d.x;
     var y = state.worms[w].y + d.y;
 
@@ -123,8 +126,9 @@ function canAttack(state, c) {
         return containsXY(state.trail, c);
     case "Dynamite":
         return containsXY(state.trail, c);
-    case "Pistol":
     case "Flame Thrower":
+        return nearestTarget !== null && targetWorm !== null && distance <= 4;
+    case "Pistol":
     case "Kamikaze":
     case "Hook":
     default:
@@ -164,8 +168,20 @@ function attack(state, c) {
     case "Dynamite":
         state.board[c.x][c.y].dynamite = true;
         break;
-    case "Pistol":
     case "Flame Thrower":
+        var cell = activeWorm;
+        for (var i = 1; i <= 4; i++) {
+            cell = addXY(cell, direction);
+            if (!exists(state, cell.x, cell.y)) {
+                break;
+            }
+            var w = state.board[cell.x][cell.y].worm;
+            if (w >= 0) {
+                harm(state, state.worms[w]);
+            }
+        }
+        break;
+    case "Pistol":
     case "Kamikaze":
     case "Hook":
     default:

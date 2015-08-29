@@ -87,10 +87,11 @@ function makeDummyState() {
     state.actions = [
         "Move",
         "Shotgun",
-	"Bow",
-	"Baseball Bat",
-	"Mine",
-	"Dynamite",
+        "Bow",
+        "Baseball Bat",
+        "Flame Thrower",
+        "Mine",
+        "Dynamite",
         "Sleep",
     ];
     return state;

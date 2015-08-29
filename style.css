@@ -242,7 +242,7 @@ li a {
     text-decoration: none;
     color: #000;
     display: block;
-    width: 200px;
+    width: 250px;
 
     transition: font-size 0.3s ease, background-color 0.3s ease;
 }
