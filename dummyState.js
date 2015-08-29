@@ -42,6 +42,52 @@ function addWorm(state, player, x, y) {
     }
 }
 
+function shuffle(array) {
+    var counter = array.length, temp, index;
+
+    // While there are elements in the array
+    while (counter > 0) {
+        index = Math.floor(Math.random() * counter);
+        counter--;
+
+        // Swap elements
+        temp = array[counter];
+        array[counter] = array[index];
+        array[index] = temp;
+    }
+    return array;
+}
+
+function card(count, desc) {
+    return {count: count, desc: desc};
+}
+
+var cardInfo = {
+    "Baseball Bat": card(5, "Push 3 cases, 1 damage"),
+    "Bow": card(5, "Push 2 cases, no damage"),
+    "Dynamite": card(5, "Explosion at the beginning of your next turn"),
+    "Flame Thrower": card(5, "1 damage to 4 cases in one direction"),
+    "Grenade": card(5, "Explosion"),
+    "Kamikaze": card(5, "Kill active worm, explosion"),
+    "Knife": card(5, "1 damage to every adjacent worm"),
+    "Mine": card(5, "Explosion when someone walks on the case"),
+    "Move": card(-1, "Move up to 3 cases per turn, before any other action"),
+    "Shotgun": card(5, "Push 1 case, 1 damage"),
+    "Sleep": card(-1, "Do nothing"),
+    "Uzi": card(5, "Shoot 3 times in the same direction, 1 damage"),
+}
+
+function initCards() {
+    var allCards = [];
+    for (var card in cardInfo) {
+        for (var i = 0; i < cardInfo[card].count; i++) {
+            allCards.push(card);
+        }
+    }
+    shuffle(allCards);
+    return allCards;
+}
+
 function makeDummyState() {
     var state = {
         players: [newPlayer("Rubix"), newPlayer("LLB"), newPlayer("Sly")],
@@ -52,6 +98,9 @@ function makeDummyState() {
         selectedCard: 0,
         currentPlayer: 0,
         hasPlayed: false,
+        futureCards: initCards(),
+        activeCards: [],
+        actions: [],
         worms: []
     };
     var worms = [
@@ -84,18 +133,5 @@ function makeDummyState() {
         var w = worms[i];
         addWorm(state, w[0], w[1], w[2]);
     }
-    state.actions = [
-        "Move",
-        "Sleep",
-        "Knife",
-        "Shotgun",
-        "Bow",
-        "Baseball Bat",
-        "Flame Thrower",
-        "Grenade",
-        "Uzi",
-        "Mine",
-        "Dynamite",
-    ];
     return state;
 }

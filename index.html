@@ -146,7 +146,7 @@
         </ul>
         <h1>Action</h1>
         <ul>
-          <li ng-repeat="c in state.actions">
+          <li ng-repeat="c in state.actions track by $index">
             <a href="#"
                ng-click="selCard(c, $index)"
                ng-class="state.selectedCard==$index ? 'selected':''">{{c}}</a>

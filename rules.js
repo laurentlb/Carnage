@@ -11,7 +11,9 @@ var allDirections = [
 
 function newGame() {
     // TODO: init game at random
-    return makeDummyState();
+    var state = makeDummyState();
+    drawCards(state);
+    return state;
 }
 
 function move(state, d) { // active worm is moved by player
@@ -89,6 +91,7 @@ function endTurn(state) {
     // TODO: draw card
     state.selectedCard = -1;
     state.selectedWorm = -1;
+    drawCards(state);
     return state;
 }
 
@@ -106,8 +109,9 @@ function canAttack(state, c) {
     if (state.selectedCard <= 0) {
         return false;
     }
+    var action = state.actions[state.selectedCard];
     if (c.worm === state.selectedWorm) {
-        return state.actions[state.selectedCard] === "Sleep";
+        return ["Sleep", "Kamikaze"].indexOf(action) >= 0;
     }
 
     var activeWorm = state.worms[state.selectedWorm];
@@ -117,6 +121,7 @@ function canAttack(state, c) {
     var nearestTarget = direction === null ? null : nearestWorm(state, activeWorm, direction);
 
     switch (state.actions[state.selectedCard]) {
+    case "Kamikaze":
     case "Sleep":
         return false;
     case "Uzi":
@@ -141,22 +146,8 @@ function canAttack(state, c) {
     }
 }
 
-var cardDescription = {
-    "Move": "Move up to 3 cases per turn, before any other action",
-    "Sleep": "Do nothing",
-    "Knife": "1 damage to every adjacent worm",
-    "Uzi": "Shoot 3 times in the same direction, 1 damage",
-    "Shotgun": "Push 1 case, 1 damage",
-    "Bow": "Push 2 cases, no damage",
-    "Baseball Bat": "Push 3 cases, 1 damage",
-    "Flame Thrower": "1 damage to 4 cases in one direction",
-    "Grenade": "Explosion",
-    "Mine": "Explosion when someone walks on the case",
-    "Dynamite": "Explosion at the beginning of your next turn",
-}
-
 function description(card) {
-    return cardDescription[card];
+    return cardInfo[card].desc;
 }
 
 function hitCell(state, c) {
@@ -246,6 +237,10 @@ function attack(state, c) {
     case "Grenade":
         explode(state, c);
         break;
+    case "Kamikaze":
+        explode(state, c);
+        hitCell(state, activeWorm);
+        break;
     case "Pistol":
     case "Kamikaze":
     case "Hook":
@@ -253,7 +248,9 @@ function attack(state, c) {
         fail(state.actions[state.selectedCard] + " not implemented");
     }
 
-    // TODO: remove card
+    // Remove card
+    state.activeCards.splice(state.selectedCard - 2, 1); // first 2 cards are permanent
+    //drawCards(state);
     return state;
 }
 
@@ -298,6 +295,19 @@ function nearestWorm(state, from, direction) {
     return nearestWorm(state, p, direction);
 }
 
+
+// cards
+
+function drawCards(state) {
+    while (state.activeCards.length < 5) {
+        if (state.futureCards.length == 0) {
+            return;
+        }
+        var c = state.futureCards.pop();
+        state.activeCards.push(c);
+    }
+    state.actions = ["Move", "Sleep"].concat(state.activeCards);
+}
 
 // hexagonal topology
 

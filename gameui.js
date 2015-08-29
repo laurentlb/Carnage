@@ -138,8 +138,8 @@ carnageApp.game = function($scope, $timeout) {
             return;
         }
         // attack
-        var big = $scope.state.actions[$scope.state.selectedCard] == "Grenade";
-        explode(c, big);
+        var big = ["Grenade", "Kamikaze"];
+        explode(c, big.indexOf($scope.state.actions[$scope.state.selectedCard]) >= 0);
         $scope.state = attack($scope.state, c);
         $scope.endTurn();
     };
@@ -155,7 +155,6 @@ carnageApp.game = function($scope, $timeout) {
             $scope.state.hasPlayed = true;
         }, 1000);
     };
-
 
     $scope.selCard = function(card, index) {
         $scope.state.selectedCard = index;
