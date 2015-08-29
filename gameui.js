@@ -36,8 +36,10 @@ carnageApp.game = function($scope, $timeout) {
 
     // Explosions
     $scope.explosion = null;
-    var explode = function(c, big) {
-        if (big) {
+    var explode = function(c, impact) {
+        if (impact == 0) {
+            return;
+        } else if (impact == 2) {
             $scope.explosion = {
                 pos: $scope.getPos(c.x-0.5, c.y-0.9),
                 size: "width: 100px; height: 100px",
@@ -138,8 +140,8 @@ carnageApp.game = function($scope, $timeout) {
             return;
         }
         // attack
-        var big = ["Grenade", "Kamikaze"];
-        explode(c, big.indexOf($scope.state.actions[$scope.state.selectedCard]) >= 0);
+        var card = $scope.state.actions[$scope.state.selectedCard];
+        explode(c, cardInfo[card].impact);
         $scope.state = attack($scope.state, c);
         $scope.endTurn();
     };
@@ -158,7 +160,7 @@ carnageApp.game = function($scope, $timeout) {
 
     $scope.selCard = function(card, index) {
         $scope.state.selectedCard = index;
-        $scope.cardDescription = card + ": " + description(card);
+        $scope.cardDescription = card + ": " + cardInfo[card].desc;
     };
 
     $scope.state = newGame();

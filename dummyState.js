@@ -24,7 +24,15 @@ function newBoard() {
     return res;
 }
 
-function addWorm(state, player, x, y) {
+function addWorm(state, player) {
+    var x = Math.floor(Math.random() * 11);
+    var y = Math.floor(Math.random() * 11);
+
+    if (!state.board[x][y].exists || state.board[x][y].worm >= 0) {
+        addWorm(state, player);
+        return;
+    }
+
     var wormId = state.worms.length;
     var worm = {
         id: wormId,
@@ -58,23 +66,27 @@ function shuffle(array) {
     return array;
 }
 
-function card(count, desc) {
-    return {count: count, desc: desc};
+function card(count, impact, desc) {
+    return {
+        count: count,
+        impact: impact, // {0,1,2} for the type sprite to show
+        desc: desc
+    };
 }
 
 var cardInfo = {
-    "Baseball Bat": card(5, "Push 3 cases, 1 damage"),
-    "Bow": card(5, "Push 2 cases, no damage"),
-    "Dynamite": card(5, "Explosion at the beginning of your next turn"),
-    "Flame Thrower": card(5, "1 damage to 4 cases in one direction"),
-    "Grenade": card(5, "Explosion"),
-    "Kamikaze": card(5, "Kill active worm, explosion"),
-    "Knife": card(5, "1 damage to every adjacent worm"),
-    "Mine": card(5, "Explosion when someone walks on the case"),
-    "Move": card(-1, "Move up to 3 cases per turn, before any other action"),
-    "Shotgun": card(5, "Push 1 case, 1 damage"),
-    "Sleep": card(-1, "Do nothing"),
-    "Uzi": card(5, "Shoot 3 times in the same direction, 1 damage"),
+    "Baseball Bat": card(5, 1, "Push 3 cases, 1 damage"),
+    "Bow": card(5, 1, "Push 2 cases, no damage"),
+    "Dynamite": card(5, 0, "Explosion at the beginning of your next turn"),
+    "Flame Thrower": card(5, 1, "1 damage to 4 cases in one direction"),
+    "Grenade": card(5, 2, "Explosion"),
+    "Kamikaze": card(5, 2, "Kill active worm, explosion"),
+    "Knife": card(5, 1, "1 damage to every adjacent worm"),
+    "Mine": card(5, 0, "Explosion when someone walks on the case"),
+    "Move": card(-1, 0, "Move up to 3 cases per turn, before any other action"),
+    "Shotgun": card(5, 1, "Push 1 case, 1 damage"),
+    "Sleep": card(-1, 0, "Do nothing"),
+    "Uzi": card(5, 1, "Shoot 3 times in the same direction, 1 damage"),
 }
 
 function initCards() {
@@ -92,46 +104,27 @@ function makeDummyState() {
     var state = {
         players: [newPlayer("Rubix"), newPlayer("LLB"), newPlayer("Sly")],
         board: newBoard(),
-        selectedWorm: 4,
+        selectedWorm: -1,
 	movesLeft: 3,
 	trail: [],
         selectedCard: 0,
         currentPlayer: 0,
-        hasPlayed: false,
+        hasPlayed: true, // start with worm selection
         futureCards: initCards(),
         activeCards: [],
         actions: [],
         worms: []
     };
-    var worms = [
-        [0,  4, 1],
-        [0,  5, 5],
-        [0,  1, 1],
-        [1,  7, 2],
-        [1,  5, 6],
-        [1,  4, 3],
-        [2,  5, 0],
-        [2,  3, 7],
-        [2,  8, 3],
-
-        [-1, 0, 4],
-        [-1, 0, 5],
-        [-1, 1, 6],
-        [-1, 2, 3],
-        [-1, 4, 6],
-        [-1, 4, 9],
-        [-1, 5, 3],
-        [-1, 7, 7],
-        [-1, 6, 9],
-        [-1, 7, 4],
-        [-1, 8, 5],
-        [-1, 9, 7],
-        [-1, 10, 5],
-        [-1, 10, 10],
-    ];
-    for (var i = 0; i < worms.length; i++) {
-        var w = worms[i];
-        addWorm(state, w[0], w[1], w[2]);
+    var nbWorms = 0;
+    for (var p = 0; p < state.players.length; p++) {
+        for (var i = 0; i < 3; i++) {
+            addWorm(state, p);
+            nbWorms++;
+        }
+    }
+    while (nbWorms < 20) {
+        addWorm(state, -1);
+        nbWorms++;
     }
     return state;
 }

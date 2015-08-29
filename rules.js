@@ -131,11 +131,10 @@ function canAttack(state, c) {
     case "Baseball Bat":
     case "Knife":
         return targetWorm !== null && distance === 1;
-        return targetWorm !== null && distance === 1;
     case "Grenade":
         return distance <= 3;
     case "Mine":
-        return containsXY(state.trail, c);
+    case "Dynamite":
         return containsXY(state.trail, c);
     case "Flame Thrower":
         return nearestTarget !== null && targetWorm !== null && distance <= 4;
@@ -144,10 +143,6 @@ function canAttack(state, c) {
     default:
         fail(state.actions[state.selectedCard] + " not implemented");
     }
-}
-
-function description(card) {
-    return cardInfo[card].desc;
 }
 
 function hitCell(state, c) {
@@ -238,8 +233,8 @@ function attack(state, c) {
         explode(state, c);
         break;
     case "Kamikaze":
-        explode(state, c);
-        hitCell(state, activeWorm);
+        kill(state, activeWorm);
+        explode(state, activeWorm);
         break;
     case "Pistol":
     case "Kamikaze":
@@ -250,7 +245,6 @@ function attack(state, c) {
 
     // Remove card
     state.activeCards.splice(state.selectedCard - 2, 1); // first 2 cards are permanent
-    //drawCards(state);
     return state;
 }
 
@@ -301,7 +295,7 @@ function nearestWorm(state, from, direction) {
 function drawCards(state) {
     while (state.activeCards.length < 5) {
         if (state.futureCards.length == 0) {
-            return;
+            break;
         }
         var c = state.futureCards.pop();
         state.activeCards.push(c);
