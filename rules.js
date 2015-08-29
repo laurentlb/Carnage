@@ -39,6 +39,7 @@ function moveWorm(state, wormId, p) {
 
 // test if position exists
 function exists(state, x, y) {
+    checkargs(arguments);
     if (x < 0 || x > 10) {
         return false;
     }
@@ -106,7 +107,7 @@ function canAttack(state, c) {
         return false;
     }
     if (c.worm === state.selectedWorm) {
-        return false;
+        return state.actions[state.selectedCard] === "Sleep";
     }
 
     var activeWorm = state.worms[state.selectedWorm];
@@ -116,26 +117,69 @@ function canAttack(state, c) {
     var nearestTarget = direction === null ? null : nearestWorm(state, activeWorm, direction);
 
     switch (state.actions[state.selectedCard]) {
+    case "Sleep":
+        return false;
+    case "Uzi":
     case "Shotgun":
-        return nearestTarget !== null && nearestTarget === targetWorm;
     case "Bow":
         return nearestTarget !== null && nearestTarget === targetWorm;
     case "Baseball Bat":
-        return targetWorm !== null && distance === 1;
     case "Knife":
         return targetWorm !== null && distance === 1;
+        return targetWorm !== null && distance === 1;
+    case "Grenade":
+        return distance <= 3;
     case "Mine":
         return containsXY(state.trail, c);
-    case "Dynamite":
         return containsXY(state.trail, c);
     case "Flame Thrower":
         return nearestTarget !== null && targetWorm !== null && distance <= 4;
-    case "Pistol":
     case "Kamikaze":
     case "Hook":
     default:
         fail(state.actions[state.selectedCard] + " not implemented");
     }
+}
+
+var cardDescription = {
+    "Move": "Move up to 3 cases per turn, before any other action",
+    "Sleep": "Do nothing",
+    "Knife": "1 damage to every adjacent worm",
+    "Uzi": "Shoot 3 times in the same direction, 1 damage",
+    "Shotgun": "Push 1 case, 1 damage",
+    "Bow": "Push 2 cases, no damage",
+    "Baseball Bat": "Push 3 cases, 1 damage",
+    "Flame Thrower": "1 damage to 4 cases in one direction",
+    "Grenade": "Explosion",
+    "Mine": "Explosion when someone walks on the case",
+    "Dynamite": "Explosion at the beginning of your next turn",
+}
+
+function description(card) {
+    return cardDescription[card];
+}
+
+function hitCell(state, c) {
+    checkargs(state, c);
+    if (!exists(state, c.x, c.y)) {
+        return;
+    }
+    var w = state.board[c.x][c.y].worm;
+    if (w >= 0) {
+        harm(state, state.worms[w]);
+    }
+}
+
+function hitCells(state, c, list) {
+    checkargs(state, c, list);
+    for (var i = 0; i < list.length; i++) {
+        hitCell(state, addXY(c, list[i]));
+    }
+}
+
+function explode(state, c) {
+    checkargs(state, c);
+    hitCells(state, c, allDirections.concat([{x: 0, y: 0}]));
 }
 
 function attack(state, c) {
@@ -146,6 +190,8 @@ function attack(state, c) {
     var nearestTarget = direction === null ? null : nearestWorm(state, activeWorm, direction);
 
     switch (state.actions[state.selectedCard]) {
+    case "Sleep":
+        break; // Zzzz
     case "Shotgun":
         assert(nearestTarget === targetWorm);
         push(state, targetWorm, direction);
@@ -158,11 +204,22 @@ function attack(state, c) {
         push(state, targetWorm, direction);
         push(state, targetWorm, direction);
         break;
+    case "Uzi":
+        for (var i = 0; i < 3; i++) {
+            var w = nearestWorm(state, activeWorm, direction);
+            if (w !== null) {
+                harm(state, w);
+            }
+        }
+        break;
     case "Baseball Bat":
         assert(distance == 1);
         push(state, targetWorm, direction);
         push(state, targetWorm, direction);
         push(state, targetWorm, direction);
+        if (targetWorm.life > 0) {
+            harm(state, targetWorm);
+        }
         break;
     case "Mine":
         state.board[c.x][c.y].mine = true;
@@ -184,16 +241,10 @@ function attack(state, c) {
         }
         break;
     case "Knife":
-        for (var i = 0; i < allDirections.length; i++) {
-            cell = addXY(activeWorm, allDirections[i]);
-            if (!exists(state, cell.x, cell.y)) {
-                break;
-            }
-            var w = state.board[cell.x][cell.y].worm;
-            if (w >= 0) {
-                harm(state, state.worms[w]);
-            }
-        }
+        hitCells(state, activeWorm, allDirections);
+        break;
+    case "Grenade":
+        explode(state, c);
         break;
     case "Pistol":
     case "Kamikaze":

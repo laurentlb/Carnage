@@ -138,7 +138,8 @@ carnageApp.game = function($scope, $timeout) {
             return;
         }
         // attack
-        explode(c, false);
+        var big = $scope.state.actions[$scope.state.selectedCard] == "Grenade";
+        explode(c, big);
         $scope.state = attack($scope.state, c);
         $scope.endTurn();
     };
@@ -158,9 +159,7 @@ carnageApp.game = function($scope, $timeout) {
 
     $scope.selCard = function(card, index) {
         $scope.state.selectedCard = index;
-        if (card == "Sleep") {
-            $scope.endTurn();
-        }
+        $scope.cardDescription = card + ": " + description(card);
     };
 
     $scope.state = newGame();
