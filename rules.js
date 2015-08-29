@@ -15,8 +15,8 @@ function newGame() {
 }
 
 function move(state, d) { // active worm is moved by player
-    if (state.movesLeft <= 0) {
-        fail("no moves left");
+    if (!canMove(state, d)) {
+        fail("move not allowed");
     }
     state.movesLeft -= 1;
     var w = state.selectedWorm;
@@ -122,6 +122,8 @@ function canAttack(state, c) {
         return nearestTarget !== null && nearestTarget === targetWorm;
     case "Baseball Bat":
         return targetWorm !== null && distance === 1;
+    case "Knife":
+        return targetWorm !== null && distance === 1;
     case "Mine":
         return containsXY(state.trail, c);
     case "Dynamite":
@@ -172,6 +174,18 @@ function attack(state, c) {
         var cell = activeWorm;
         for (var i = 1; i <= 4; i++) {
             cell = addXY(cell, direction);
+            if (!exists(state, cell.x, cell.y)) {
+                break;
+            }
+            var w = state.board[cell.x][cell.y].worm;
+            if (w >= 0) {
+                harm(state, state.worms[w]);
+            }
+        }
+        break;
+    case "Knife":
+        for (var i = 0; i < allDirections.length; i++) {
+            cell = addXY(activeWorm, allDirections[i]);
             if (!exists(state, cell.x, cell.y)) {
                 break;
             }
