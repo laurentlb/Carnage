@@ -60,8 +60,6 @@
     <div ng-show="menuPage == 'name'">
       <h2>Welcome</h2>
 
-      <button ng-click="page='game'">UI preview</button>
-
       <input ng-model="tmp_name" ng-keydown="setName($event)" type="text"
              id="nameInput" placeholder="Enter your name">
       <p class="stderr" ng-show="showStderr">{{stderr}}</p>
@@ -93,7 +91,7 @@
       </ul>
       <button ng-click="cancelGame()">Quit</button>
       <button ng-click="startGame()"
-              ng-show="room.owner == name && roomPlayers.length > 1">Start</button>
+              ng-show="room.owner == name">Start</button>
       <p class="stderr" ng-show="showStderr">{{stderr}}</p>
     </div>
   </div>
@@ -157,7 +155,7 @@
 
     </div> <!-- end board -->
 
-    <button ng-click="back()">Back</button>
+    <button ng-click="back()">Quit</button>
 
   </div>
 

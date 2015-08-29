@@ -132,7 +132,7 @@ button {
 }
 
 li.ng-enter {
-  transition: all linear 1s;
+  /* transition: all linear 1s; */
   max-height: 0px;
   opacity: 0;
 }
@@ -244,7 +244,7 @@ li a {
     display: block;
     width: 250px;
 
-    transition: font-size 0.3s ease, background-color 0.3s ease;
+    /* transition: font-size 0.3s ease, background-color 0.3s ease; */
 }
 
 li a:hover {

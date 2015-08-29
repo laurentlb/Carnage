@@ -77,7 +77,8 @@ carnageApp.game = function($scope, $timeout) {
         }
         var w = c.worm;
         var border = "";
-        if (w >= 0 && $scope.state.worms[w].player == $scope.state.currentPlayer) {
+
+        if (w >= 0 && $scope.state.worms[w].player == $scope.myInfo.id) {
             border = "border: dotted 4px #68f;";
         }
 
@@ -132,41 +133,71 @@ carnageApp.game = function($scope, $timeout) {
         }
     }
 
+    var syncState = function(x) {
+        if (x) {
+            $scope.state = x;
+        }
+        $scope.stateRef.set(angular.copy($scope.state));
+    };
+
+    var playing = function() {
+        var p = $scope.state.currentPlayer;
+        var ok = $scope.state.players[p].name === $scope.myInfo.name;
+        if (!ok) {
+            log("Not your turn!");
+        }
+        return ok;
+    };
+
     $scope.attack = function(c) {
+        if (!playing()) {
+            return;
+        }
+
         // select a new worm
         if ($scope.state.hasPlayed) {
             log("New turn!");
-            $scope.state = newTurn($scope.state, c);
+            syncState(newTurn($scope.state, c));
             return;
         }
         // attack
         var card = $scope.state.actions[$scope.state.selectedCard];
         explode(c, cardInfo[card].impact);
-        $scope.state = attack($scope.state, c);
+        syncState(attack($scope.state, c));
         $scope.endTurn();
     };
 
     $scope.move = function(d) {
-        $scope.state = move($scope.state, d);
+        if (!playing()) {
+            return;
+        }
+        syncState(move($scope.state, d));
     };
 
     $scope.endTurn = function(d) {
-        $scope.state = endTurn($scope.state);
         log("Select which worm will be controlled next.");
+        syncState(endTurn($scope.state));
         $timeout(function() {
             $scope.state.hasPlayed = true;
+            syncState();
         }, 1000);
     };
 
     $scope.selCard = function(card, index) {
+        if (!playing()) {
+            return;
+        }
         $scope.state.selectedCard = index;
         $scope.cardDescription = card + ": " + cardInfo[card].desc;
+        syncState();
     };
 
-    $scope.state = newGame();
-    $scope.map = $scope.state.board;
-    $scope.directions = allDirections;
+    $scope.newGame = function(players) {
+        $scope.state = newGame(players);
+        syncState();
+        $scope.map = $scope.state.board;
+        $scope.page = "game";
+    };
 
-    // show map for every player
-    // sync map with Firebase
+    $scope.directions = allDirections;
 };

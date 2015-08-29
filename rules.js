@@ -9,9 +9,8 @@ var allDirections = [
         {x:  1, y:  1},
     ];
 
-function newGame() {
-    // TODO: init game at random
-    var state = makeDummyState();
+function newGame(players) {
+    var state = makeDummyState(players);
     drawCards(state);
     return state;
 }
@@ -23,6 +22,9 @@ function move(state, d) { // active worm is moved by player
     state.movesLeft -= 1;
     var w = state.selectedWorm;
     var worm = state.worms[w];
+    if (!state.trail) {
+        state.trail = [];
+    }
     state.trail.push({x:worm.x, y:worm.y});
     moveWorm(state, w, addXY(worm, d));
     return state;

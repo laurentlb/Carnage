@@ -42,7 +42,7 @@ carnageApp.controller('CarnageCtrl', ['$scope', "$firebase", "$timeout",
             return;
         }, function(error, committed, snapshot) {
             if (error || !committed) {
-                fail("Nom '" + $scope.tmp_name + "' non disponible.");
+                fail("Name '" + $scope.tmp_name + "' not available.");
                 return;
             }
             $scope.name = $scope.tmp_name;
@@ -88,19 +88,39 @@ carnageApp.controller('CarnageCtrl', ['$scope', "$firebase", "$timeout",
         $scope.myRef.onDisconnect().remove();
         $scope.myInfo = $firebase($scope.myRef).$asObject();
 
-        $scope.menuPage = 'room';
+        $scope.stateRef = REF("rooms", arg, "state");
+        $scope.stateRef.on('value', function(snap) {
+            if (snap.val() === null) {
+                $scope.menuPage = "room";
+                $scope.page = "menu";
+            } else {
+                $scope.state = snap.val();
+                $scope.page = "game";
+                $scope.map = $scope.state.board;
+
+                for (var i = 0; i < $scope.state.players.length; i++) {
+                    if ($scope.state.players[i].name == $scope.myInfo.name) {
+                        $scope.myInfo.id = i;
+                        break;
+                    }
+                }
+            }
+        });
+
+        $scope.menuPage = "room";
     };
 
     $scope.connected = $firebase(REF("players")).$asArray();
     $scope.rooms = $firebase(REF("rooms")).$asArray();
 
     $scope.startGame = function(arg) {
+        $scope.newGame($scope.roomPlayers);
         $scope.page = "game";
     };
 
     $scope.back = function() {
-        $scope.page='menu';
-        $scope.menuPage='name';
+        $scope.page = "menu";
+        $scope.menuPage = "room";
     };
 
     carnageApp.game($scope, $timeout);
@@ -111,8 +131,6 @@ carnageApp.controller('PublicChatCtrl', ['$scope', '$firebase', function($scope,
     $scope.messages = $firebase(ref).$asArray();
 
     $scope.addMessage = function(e) {
-        console.log('key ' + $scope.tmp_name);
-
         if (e.keyCode === 13 && $scope.msg) {
             $scope.messages.$add({
                 from: $scope.name,
