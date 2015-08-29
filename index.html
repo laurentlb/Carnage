@@ -139,7 +139,10 @@
         <ul>
           <li ng-repeat="p in state.players">
             <a href="#"
-               ng-class="state.currentPlayer==$index ? 'selected':''">{{p.name}}</a>
+               ng-class="state.currentPlayer==$index ? 'selected':''">
+              {{p.name}}
+              ({{p.worms}})
+            </a>
           </li>
         </ul>
         <h1>Action</h1>

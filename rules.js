@@ -75,6 +75,9 @@ function canMove(state, d) {
 
 function kill(state, w) {
     w.life = 0;
+    if (w.player >= 0) {
+        state.players[w.player].worms--;
+    }
     state.board[w.x][w.y].worm = -1;
 }
 

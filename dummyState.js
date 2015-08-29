@@ -75,18 +75,20 @@ function card(count, impact, desc) {
 }
 
 var cardInfo = {
+    "Move": card(0, 0, "Move up to 3 cases per turn, before any other action"),
+    "Sleep": card(0, 0, "Do nothing"),
+
     "Baseball Bat": card(5, 1, "Push 3 cases, 1 damage"),
-    "Bow": card(5, 1, "Push 2 cases, no damage"),
     "Dynamite": card(0, 0, "Explosion at the beginning of your next turn"),
     "Flame Thrower": card(5, 1, "1 damage to 4 cases in one direction"),
     "Grenade": card(5, 2, "Explosion"),
     "Kamikaze": card(5, 2, "Kill active worm, explosion"),
-    "Knife": card(5, 1, "1 damage to every adjacent worm"),
     "Mine": card(0, 0, "Explosion when someone walks on the case"),
-    "Move": card(-1, 0, "Move up to 3 cases per turn, before any other action"),
     "Shotgun": card(5, 1, "Push 1 case, 1 damage"),
-    "Sleep": card(-1, 0, "Do nothing"),
     "Uzi": card(5, 1, "Shoot 3 times in the same direction, 1 damage"),
+
+    "Bow": card(0, 1, "Push 2 cases, no damage"),
+    "Knife": card(0, 1, "1 damage to every adjacent worm"),
 }
 
 function initCards() {
@@ -106,7 +108,7 @@ function makeDummyState(players) {
     for (var i = 0; i < players.length; i++) {
         playerArray.push({
             name: players[i].name,
-            dead: false
+            worms: 3
         });
     }
     var state = {
