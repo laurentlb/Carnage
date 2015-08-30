@@ -146,7 +146,7 @@ function makeDummyState(players) {
         addWorm(state, -1);
         nbWorms++;
     }
-    for (var i = 0; i < 2; i++) {
+    for (var i = 0; i < 1; i++) {
         var c = getEmptyCell(state);
         state.board[c.x][c.y].mine = true;
     }
