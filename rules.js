@@ -32,6 +32,14 @@ function move(state, d) { // active worm is moved by player
 
 function moveWorm(state, wormId, p) {
     checkargs(state, wormId, p);
+    if (state.board[p.x][p.y].mine) {
+        if (!state.mines) {
+            state.mines = [];
+        }
+        state.mines.push(p);
+        state.board[p.x][p.y].mine = false;
+    }
+
     var x = state.worms[wormId].x;
     var y = state.worms[wormId].y;
     state.board[x][y].worm = -1;
@@ -44,10 +52,10 @@ function moveWorm(state, wormId, p) {
 // test if position exists
 function exists(state, x, y) {
     checkargs(arguments);
-    if (x < 0 || x > 10) {
+    if (x < 0 || x >= state.board.length) {
         return false;
     }
-    if (y < 0 || y > 10) {
+    if (y < 0 || y >= state.board[0].length) {
         return false;
     }
     return state.board[x][y].exists;
@@ -92,18 +100,48 @@ function harm(state, w) {
 }
 
 function endTurn(state) {
-    // TODO: mine, dynamite
-    // TODO: draw card
+    if (state.mines) {
+        for (var i = 0; i < state.mines.length; i++) {
+            var mine = state.mines[i];
+            explode(state, mine);
+            state.board[mine.x][mine.y].mine = false;
+        }
+        state.mines = null;
+    }
+
     state.selectedCard = -1;
     state.selectedWorm = -1;
     drawCards(state);
     return state;
 }
 
+function nextPlayer(state) {
+    var n = 0;
+    var p;
+    for (var i = 1; i <= state.players.length; i++) {
+        p = (state.currentPlayer + i) % state.players.length;
+        if (state.players[p].worms > 0) {
+            break;
+        }
+    }
+
+    if (state.players[p].worms <= 0) {
+        return -1; // no one left
+    }
+
+    if (p === state.currentPlayer) {
+        if (state.players.length === 1) { // 1-player game
+            return p;
+        }
+        return -1;
+    }
+    return p;
+}
+
 function newTurn(state, c) {
+    state.currentPlayer = nextPlayer(state);
     state.selectedCard = 0;
     state.selectedWorm = c.worm;
-    state.currentPlayer = (state.currentPlayer + 1) % state.players.length;
     state.hasPlayed = false;
     state.movesLeft = 3;
     state.trail = [];
@@ -143,8 +181,8 @@ function canAttack(state, c) {
         return containsXY(state.trail, c);
     case "Flame Thrower":
         return nearestTarget !== null && targetWorm !== null && distance <= 4;
-    case "Kamikaze":
-    case "Hook":
+    case "Teleport":
+        return targetWorm === null;
     default:
         fail(state.actions[state.selectedCard] + " not implemented");
     }
@@ -241,9 +279,10 @@ function attack(state, c) {
         kill(state, activeWorm);
         explode(state, activeWorm);
         break;
-    case "Pistol":
+    case "Teleport":
+        moveWorm(state, state.selectedWorm, c);
+        break;
     case "Kamikaze":
-    case "Hook":
     default:
         fail(state.actions[state.selectedCard] + " not implemented");
     }
@@ -298,9 +337,10 @@ function nearestWorm(state, from, direction) {
 // cards
 
 function drawCards(state) {
-    while (state.activeCards.length < 5) {
+    state.activeCards = [];
+    while (state.activeCards.length < 3) {
         if (state.futureCards.length == 0) {
-            break;
+            state.futureCards = initCards();
         }
         var c = state.futureCards.pop();
         state.activeCards.push(c);
@@ -347,6 +387,9 @@ function addXY(p1, p2) {
 }
 
 function containsXY(list, p) {
+    if (!list) {
+        return false;
+    }
     for (var i = 0; i < list.length; ++i) {
         var item = list[i];
         if (item.x === p.x && item.y === p.y) {

@@ -150,6 +150,10 @@ carnageApp.game = function($scope, $timeout) {
     };
 
     $scope.attack = function(c) {
+        if (nextPlayer($scope.state) < 0) {
+            log("Game over");
+            return;
+        }
         if (!playing()) {
             return;
         }
@@ -175,6 +179,10 @@ carnageApp.game = function($scope, $timeout) {
     };
 
     $scope.endTurn = function(d) {
+        if (nextPlayer($scope.state) < 0) {
+            log("Game over");
+            return;
+        }
         log("Select which worm will be controlled next.");
         syncState(endTurn($scope.state));
         $timeout(function() {

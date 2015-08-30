@@ -128,7 +128,7 @@ carnageApp.controller('CarnageCtrl', ['$scope', "$firebase", "$timeout",
 
 carnageApp.controller('PublicChatCtrl', ['$scope', '$firebase', function($scope, $firebase) {
     var ref = REF("public_chat");
-    $scope.messages = $firebase(ref).$asArray();
+    $scope.messages = $firebase(ref.limitToLast(15)).$asArray();
 
     $scope.addMessage = function(e) {
         if (e.keyCode === 13 && $scope.msg) {

@@ -4,11 +4,16 @@ function newPlayer(name) {
     return {name: name, dead: false};
 }
 
+var BOARD_WIDTH = 11;
+var BOARD_HEIGHT = 11;
+var NB_WORMS = 21;
+var WORMS_PER_TEAM = 3;
+
 function newBoard() {
     var res = [];
-    for (var x = 0; x <= 10; x++) {
+    for (var x = 0; x < BOARD_WIDTH; x++) {
         var column = [];
-        for (var y = 0; y <= 10; y++) {
+        for (var y = 0; y < BOARD_HEIGHT; y++) {
             var exists = x-y >= -5 && x-y <= 5;
             column.push({
                 worm: -1,
@@ -24,26 +29,29 @@ function newBoard() {
     return res;
 }
 
-function addWorm(state, player) {
-    var x = Math.floor(Math.random() * 11);
-    var y = Math.floor(Math.random() * 11);
+function getEmptyCell(state) {
+    var x = Math.floor(Math.random() * BOARD_WIDTH);
+    var y = Math.floor(Math.random() * BOARD_HEIGHT);
 
     if (!state.board[x][y].exists || state.board[x][y].worm >= 0) {
-        addWorm(state, player);
-        return;
+        return getEmptyCell(state);
     }
+    return {x:x, y:y};
+}
 
+function addWorm(state, player) {
+    var c = getEmptyCell(state);
     var wormId = state.worms.length;
     var worm = {
         id: wormId,
-        x: x,
-        y: y,
+        x: c.x,
+        y: c.y,
         life: 2,
         player: player
     };
     state.worms.push(worm);
-    state.board[x][y].worm = wormId;
-    if (!state.board[x][y].exists)
+    state.board[c.x][c.y].worm = wormId;
+    if (!state.board[c.x][c.y].exists)
         console.log(x + ", " + y);
     if (player >= 0) {
         state.players[player].dead = false;
@@ -81,12 +89,13 @@ var cardInfo = {
     "Baseball Bat": card(5, 1, "Push 3 cases, 1 damage"),
     "Dynamite": card(0, 0, "Explosion at the beginning of your next turn"),
     "Flame Thrower": card(5, 1, "1 damage to 4 cases in one direction"),
-    "Grenade": card(5, 2, "Explosion"),
-    "Kamikaze": card(5, 2, "Kill active worm, explosion"),
-    "Mine": card(0, 0, "Explosion when someone walks on the case"),
+    "Grenade": card(4, 2, "Explosion"),
+    "Mine": card(5, 0, "Explosion when someone walks on the case"),
     "Shotgun": card(5, 1, "Push 1 case, 1 damage"),
-    "Uzi": card(5, 1, "Shoot 3 times in the same direction, 1 damage"),
+    "Teleport": card(3, 1, "Move worm to another case"),
+    "Uzi": card(4, 1, "Shoot 3 times in the same direction, 1 damage"),
 
+    "Kamikaze": card(0, 2, "Kill active worm, explosion"),
     "Bow": card(0, 1, "Push 2 cases, no damage"),
     "Knife": card(0, 1, "1 damage to every adjacent worm"),
 }
@@ -108,9 +117,10 @@ function makeDummyState(players) {
     for (var i = 0; i < players.length; i++) {
         playerArray.push({
             name: players[i].name,
-            worms: 3
+            worms: WORMS_PER_TEAM
         });
     }
+    shuffle(playerArray);
     var state = {
         players: playerArray,
         board: newBoard(),
@@ -127,14 +137,18 @@ function makeDummyState(players) {
     };
     var nbWorms = 0;
     for (var p = 0; p < state.players.length; p++) {
-        for (var i = 0; i < 3; i++) {
+        for (var i = 0; i < WORMS_PER_TEAM; i++) {
             addWorm(state, p);
             nbWorms++;
         }
     }
-    while (nbWorms < 20) {
+    while (nbWorms < NB_WORMS) {
         addWorm(state, -1);
         nbWorms++;
+    }
+    for (var i = 0; i < 1; i++) {
+        var c = getEmptyCell(state);
+        state.board[c.x][c.y].mine = true;
     }
     return state;
 }
